@@ -3,12 +3,13 @@ import java.util.List;
 
 public class PositionalIndex {
 	
+	PreProcessor proc;
 	/**
 	 * Gets the name of a folder containing document collection as parameter.
 	 * @param folder
 	 */
 	public PositionalIndex(String folder) {
-		
+		proc = new PreProcessor(folder);
 	}
 	
 	/**
@@ -17,8 +18,8 @@ public class PositionalIndex {
 	 * @param Doc
 	 * @return
 	 */
-	public int termFrequency(String term, String Doc) {
-		return 0;
+	public int termFrequency(String term, int Doc) {
+		return proc.getDictionary().get(term).get(Doc).size();
 	}
 	
 	/**
@@ -27,7 +28,7 @@ public class PositionalIndex {
 	 * @return
 	 */
 	public int docFrequency(String term) {
-		return 0;
+		return proc.getDictionary().get(term).size();
 	}
 	
 	/**
