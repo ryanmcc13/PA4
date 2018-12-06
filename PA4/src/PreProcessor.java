@@ -36,9 +36,7 @@ public class PreProcessor {
 		    	 try {
 					br = new BufferedReader(new FileReader(child));
 		    	 while ((currentLine = br.readLine()) != null) {
-		    	   //TODO figure out regex
-		    		 //took out for testing: .replaceAll("regex expression to be added here", "")
-		    	   String[] words = currentLine.toLowerCase().split("\\s+");
+		    	   String[] words = extractTerms(currentLine);		    	   
 		    	   for(int i=0;i<words.length;i++) {
 		    		   if(!positionalIndex.containsKey(words[i])) {
 		    			   positionalIndex.put(words[i], new HashMap<Integer, ArrayList<Integer>>());
@@ -53,10 +51,10 @@ public class PreProcessor {
 		    	 br.close();
 		    	 docId++;
 				} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
+						System.out.println("File was not found");
 						e.printStackTrace();
 					} catch (IOException e) {
-					// TODO Auto-generated catch block
+						System.out.println("Encountered IOException");
 					e.printStackTrace();
 				}
 		    }
@@ -65,6 +63,12 @@ public class PreProcessor {
 			  System.out.println("The folder " + folder +" was not found");
 		  }
 		
+	}
+	
+	public static String[] extractTerms(String line) {
+		//TODO figure out regex
+		 //took out for testing: .replaceAll("regex expression to be added here", "")
+	  return line.toLowerCase().split("\\s+");
 	}
 	
 	public Map<String, HashMap<Integer, ArrayList<Integer>>> getDictionary(){

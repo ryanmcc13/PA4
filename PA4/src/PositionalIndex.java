@@ -1,5 +1,6 @@
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
 
 public class PositionalIndex {
 	
@@ -68,10 +69,11 @@ public class PositionalIndex {
 	public double TPScore(String query, String doc) {
 		if(!proc.getDocumentList().containsKey(doc)) {
 			System.out.println("Document not found");
+			//what should error return be?
 			return 0;
 		}
 		//split query into terms
-		String[] terms = query.split("\\s+");
+		String[] terms = PreProcessor.extractTerms(query);
 		//if query is size one then return 0
 		if(terms.length<2) {
 			return 0;
@@ -86,10 +88,27 @@ public class PositionalIndex {
 	
 	//helper method for TPScore that calculates distance
 	private double distance(String t1, String t2, int doc) {
-		
+		if(!proc.getDictionary().containsKey(t1)|| !proc.getDictionary().containsKey(t2)) {
+			return 17;
+		}		
 		ArrayList<Integer>postings1 = proc.getDictionary().get(t1).get(doc);
 		ArrayList<Integer>postings2 = proc.getDictionary().get(t2).get(doc);
-		return 0;
+		int min = -1;
+		for(int i=0;i<postings1.size();i++) {
+			for(int j=0;j<postings2.size();j++) {
+				if(postings1.get(i)<postings2.get(j)) {
+					if(postings2.get(j)-postings1.get(i)<min || min == -1) {
+						min = postings2.get(j)-postings1.get(i);
+					}
+					break;
+				}
+			}
+		}
+		if(min == -1) {
+			return 17;
+		}else {
+			return min;
+		}
 		
 	}
 
@@ -100,7 +119,46 @@ public class PositionalIndex {
 	 * @return
 	 */
 	public double VSScore(String query, String doc) {
-		return 0;
+		//calculate vector of the query and the vector of the doc and then cosine similarity them
+		Set<String> allterms = proc.getDictionary().keySet();
+		ArrayList<Double> vectorDoc = new ArrayList<Double>();
+		Iterator<String> itForDoc = allterms.iterator();
+		while(itForDoc.hasNext()) {
+			String term = (String)itForDoc.next();
+			vectorDoc.add(weight(term,doc));
+		}
+		ArrayList<Double> vectorQuery = new ArrayList<Double>();
+		Iterator<String> itForQuery = allterms.iterator();
+		while(itForQuery.hasNext()) {
+			String term = (String)itForQuery.next();
+			vectorDoc.add(weightForQuery(term,query));
+		}
+		return cosineSimilarity(vectorQuery,vectorDoc);
+	}
+	
+	//helpermethod for getting cosine similarity
+	public static double cosineSimilarity(ArrayList<Double>vector1,ArrayList<Double>vector2) {
+		double dotProduct = 0.0;
+	    double norm1 = 0.0;
+	    double norm2 = 0.0;
+	    for (int i=0;i<vector1.size();i++) {
+	        dotProduct += vector1.get(i) * vector2.get(i);
+	        norm1 += Math.pow(vector1.get(i), 2);
+	        norm2 += Math.pow(vector2.get(i), 2);
+	    }   
+	    return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+	}
+	
+	//helper for determining weight from a query
+	public double weightForQuery(String t, String q) {
+		String[] queryTerms = PreProcessor.extractTerms(q);
+		double weight = 0;
+		for(int i=0;i<queryTerms.length;i++) {
+			if(t.equals(queryTerms[i])) {
+				weight++;
+			}
+		}
+		return weight;
 	}
 	
 	/**
