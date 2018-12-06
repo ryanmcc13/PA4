@@ -68,7 +68,8 @@ public class PreProcessor {
     public static String[] extractTerms(String line) {
         // TODO figure out regex
         // took out for testing: .replaceAll("regex expression to be added here", "")
-        return line.toLowerCase().split("\\s+");
+        String strip = line.replaceAll("[\\*,\\\"\\?\\[\\]\\`{}:;\\(\\)]", "");
+        return strip.toLowerCase().split("\\s+");
     }
 
     public Map<String, HashMap<Integer, ArrayList<Integer>>> getDictionary() {

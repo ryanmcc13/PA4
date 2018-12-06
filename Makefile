@@ -1,6 +1,6 @@
 FILES=$(addprefix bin/, $(addsuffix .class, Main PositionalIndex PreProcessor QueryProcessor))
 
-TEST=$(addprefix bin/, $(addsuffix .class, ))
+TEST=$(addprefix bin/, $(addsuffix .class, QueryProcessorTest))
 
 FLAGS= -Xlint -Werror -d bin/
 
@@ -19,7 +19,7 @@ bin/%.class: src/%.java | makebin
 
 bin/%.class: test/%.java | makebin
 	@echo "compiling $<"
-	@javac $(FLAGS) -cp bin:src/:test/ $<
+	@javac $(FLAGS) -cp ${CLASSPATH}:bin:src/:test/ $<
 
 clean:
 	@[ ! -d bin ] || echo "removing bin directory"
