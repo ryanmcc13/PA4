@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
 
@@ -21,7 +20,16 @@ public class PositionalIndex {
      * @return
      */
     public int termFrequency(String term, String Doc) {
+    	if(!proc.getDocumentList().containsKey(Doc)) {
+    		return 0;
+    	}
         int DocId = proc.getDocumentList().get(Doc);
+        if(!proc.getDictionary().containsKey(term)) {
+        	return 0;
+        }
+        if(!proc.getDictionary().get(term).containsKey(DocId)) {
+        	return 0;
+        }
         return proc.getDictionary().get(term).get(DocId).size();
     }
 
@@ -31,6 +39,9 @@ public class PositionalIndex {
      * @return
      */
     public int docFrequency(String term) {
+    	if(!proc.getDictionary().containsKey(term)) {
+    		return 0;
+    	}
         return proc.getDictionary().get(term).size();
     }
 
@@ -83,7 +94,7 @@ public class PositionalIndex {
         }
         double sumDistance = 0;
         int DocId = proc.getDocumentList().get(doc);
-        for (int i = 0; i < terms.length - 2; i++) {
+        for (int i = 0; i < terms.length - 1; i++) {
             sumDistance += distance(terms[i], terms[i + 1], DocId);
         }
         return terms.length / sumDistance;
@@ -91,8 +102,13 @@ public class PositionalIndex {
 
     // helper method for TPScore that calculates distance
     private double distance(String t1, String t2, int doc) {
-        if (!proc.getDictionary().containsKey(t1) || !proc.getDictionary().containsKey(t2)) {
+        //check if dictionary has both terms
+    	if (!proc.getDictionary().containsKey(t1) || !proc.getDictionary().containsKey(t2)) {
             return 17;
+        }
+    	//check if the document is int the postings list for each term 
+        if(!proc.getDictionary().get(t1).containsKey(doc) || !proc.getDictionary().get(t2).containsKey(doc)) {
+        	return 17;
         }
         ArrayList<Integer> postings1 = proc.getDictionary().get(t1).get(doc);
         ArrayList<Integer> postings2 = proc.getDictionary().get(t2).get(doc);
@@ -124,6 +140,11 @@ public class PositionalIndex {
     public double VSScore(String query, String doc) {
         // calculate vector of the query and the vector of the doc and then cosine
         // similarity them
+    	if (!proc.getDocumentList().containsKey(doc)) {
+            System.out.println("Document not found");
+            // what should error return be?
+            return 0;
+        }
         Set<String> allterms = proc.getDictionary().keySet();
         ArrayList<Double> vectorDoc = new ArrayList<Double>();
         Iterator<String> itForDoc = allterms.iterator();
@@ -172,6 +193,8 @@ public class PositionalIndex {
      * @return
      */
     public double Relevance(String query, String doc) {
+    	System.out.println("Finding relavence for: " + doc);
+    	//return TPScore(query,doc);
         return 0.6*TPScore(query, doc) + 0.4 *VSScore(query, doc);
     }
 }

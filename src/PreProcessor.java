@@ -58,7 +58,7 @@ public class PreProcessor {
                     e.printStackTrace();
                 }
             }
-            NumberOfDocuments = docId + 1;
+            NumberOfDocuments = docId;
         } else {
             System.out.println("The folder " + folder + " was not found");
         }
@@ -66,8 +66,6 @@ public class PreProcessor {
     }
 
     public static String[] extractTerms(String line) {
-        // TODO figure out regex
-        // took out for testing: .replaceAll("regex expression to be added here", "")
         String strip = line.replaceAll("[\\*,\\\"\\?\\[\\]\\`{}:;\\(\\)]", "");
         strip = strip.replaceAll("([^0-9])\\.", "$1");
         strip = strip.replaceAll("\\.([^0-9])", "$1");

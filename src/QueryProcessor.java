@@ -34,15 +34,30 @@ public class QueryProcessor {
         PriorityQueue<CompDoc> q = new PriorityQueue<CompDoc>(new CompDocCompare());
         Iterator<String> it = docs.keySet().iterator();
         ArrayList<String> ans = new ArrayList<String>();
+        int count = 0;
         while(it.hasNext())
         {
+        	count++;
+        	System.out.println(count);
             String doc = it.next();
             q.add(new CompDoc(doc, this.pi.Relevance(Query, doc)));
         }
-        for(int i = 0; i < k; i++)
-        {
-            ans.add(q.poll().doc);
+        if(q.size()>k) {
+        	for(int i = 0; i < k; i++)
+            {
+        		CompDoc cd = q.poll();
+        		System.out.println(cd.rel);
+                ans.add(cd.doc);
+            }
+        }else {
+        	for(int i = 0; i < q.size(); i++)
+            {
+        		CompDoc cd = q.poll();
+        		System.out.println(cd.rel);
+                ans.add(cd.doc);
+            }
         }
+        
         return ans;
     }
 

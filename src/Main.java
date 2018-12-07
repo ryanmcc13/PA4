@@ -3,11 +3,11 @@ import java.io.IOException;
 public class Main {
 
 	public static void main(String[]args) throws IOException {
-		PreProcessor proc = new PreProcessor("src/stuff");
-		System.out.println(proc.getDictionary().get("this").get(0));
-		System.out.println(proc.getDictionary().get("this").get(1));
-		System.out.println(proc.getDictionary().get("multiple").get(0));
-		System.out.println(proc.getDictionary().get("multiple").get(1));
+//		PositionalIndex pi = new PositionalIndex("src/files/IR");
+//		System.out.println(pi.docFrequency("ethiopian"));
+//		System.out.println(pi.proc.getDictionary().get("ethiopian"));
+		QueryProcessor qp = new QueryProcessor("src/other");
+		qp.topKDocs("Zulu Tribe", 5);
 		
 	}
 
