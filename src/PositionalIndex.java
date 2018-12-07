@@ -156,7 +156,7 @@ public class PositionalIndex {
         Iterator<String> itForQuery = allterms.iterator();
         while (itForQuery.hasNext()) {
             String term = itForQuery.next();
-            vectorDoc.add(weightForQuery(term, query));
+            vectorQuery.add(weightForQuery(term, query));
         }
         return cosineSimilarity(vectorQuery, vectorDoc);
     }
