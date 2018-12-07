@@ -69,6 +69,8 @@ public class PreProcessor {
         // TODO figure out regex
         // took out for testing: .replaceAll("regex expression to be added here", "")
         String strip = line.replaceAll("[\\*,\\\"\\?\\[\\]\\`{}:;\\(\\)]", "");
+        strip = strip.replaceAll("([^0-9])\\.", "$1");
+        strip = strip.replaceAll("\\.([^0-9])", "$1");
         return strip.toLowerCase().split("\\s+");
     }
 

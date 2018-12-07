@@ -1,6 +1,6 @@
 FILES=$(addprefix bin/, $(addsuffix .class, Main PositionalIndex PreProcessor QueryProcessor))
 
-TEST=$(addprefix bin/, $(addsuffix .class, QueryProcessorTest))
+TEST=$(addprefix bin/, $(addsuffix .class, QueryProcessorTest PreProcessorTest))
 
 FLAGS= -Xlint -Werror -d bin/
 
