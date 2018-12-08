@@ -2,13 +2,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Iterator;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 
 public class QueryProcessor {
 
     private PositionalIndex pi;
     private PreProcessor pp;
+    private int size;
 
     public QueryProcessor(String folder)
     {
@@ -31,44 +35,70 @@ public class QueryProcessor {
      */
     public ArrayList<String> topKDocs(String Query, int k){
         Map<String, Integer> docs = this.pp.getDocumentList();
-        PriorityQueue<CompDoc> q = new PriorityQueue<CompDoc>(new CompDocCompare());
         Iterator<String> it = docs.keySet().iterator();
+        this.size = docs.keySet().size();
+        PriorityBlockingQueue<CompDoc> q = new PriorityBlockingQueue<CompDoc>(size, new CompDocCompare());
+        ExecutorService threads = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         ArrayList<String> ans = new ArrayList<String>();
         int count = 0;
         while(it.hasNext())
         {
         	count++;
-        	System.out.println(count);
+        	System.out.print("\rfinding relivance for doc : " + count + "/" + size);
             String doc = it.next();
-            q.add(new CompDoc(doc, this.pi.Relevance(Query, doc)));
+            threads.execute(new CompDoc(doc, Query, this.pi, q));
         }
-        if(q.size()>k) {
-        	for(int i = 0; i < k; i++)
-            {
-        		CompDoc cd = q.poll();
-        		System.out.println(cd.rel);
+        try
+        {
+            threads.shutdown();
+            threads.awaitTermination(120, TimeUnit.MINUTES);
+        }
+        catch(Exception e)
+        {
+            System.out.println("there was a timeout answer is probably wrong");
+        }
+
+        int i = 0;
+        while(q.size() > 0 && i < k)
+        {
+            try{
+                CompDoc cd = q.take();
                 ans.add(cd.doc);
-            }
-        }else {
-        	for(int i = 0; i < q.size(); i++)
+                i++;
+            } catch(Exception e)
             {
-        		CompDoc cd = q.poll();
-        		System.out.println(cd.rel);
-                ans.add(cd.doc);
+
             }
         }
-        
+
+
         return ans;
     }
 
-    private class CompDoc
+    private class CompDoc implements Runnable
     {
-        public String doc;
+        public String doc, query;
         public double rel;
-        public CompDoc(String doc, double rel)
+        public PriorityBlockingQueue<CompDoc> q;
+        public PositionalIndex pi;
+        public CompDoc(String doc, String query, PositionalIndex pi, PriorityBlockingQueue<CompDoc> q)
         {
             this.doc = doc;
-            this.rel = rel;
+            this.query = query;
+            this.pi = pi;
+            this.q = q;
+        }
+
+        public void run()
+        {
+            System.out.print("\rFinding relevance for document: " + q.size() + "/"+ size);
+            this.rel = pi.Relevance(query, doc);
+            q.add(this);
+        }
+
+        public String toString()
+        {
+            return this.doc + ": " + rel;
         }
     }
 

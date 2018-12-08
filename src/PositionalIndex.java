@@ -106,7 +106,7 @@ public class PositionalIndex {
     	if (!proc.getDictionary().containsKey(t1) || !proc.getDictionary().containsKey(t2)) {
             return 17;
         }
-    	//check if the document is int the postings list for each term 
+    	//check if the document is int the postings list for each term
         if(!proc.getDictionary().get(t1).containsKey(doc) || !proc.getDictionary().get(t2).containsKey(doc)) {
         	return 17;
         }
@@ -148,14 +148,10 @@ public class PositionalIndex {
         Set<String> allterms = proc.getDictionary().keySet();
         ArrayList<Double> vectorDoc = new ArrayList<Double>();
         Iterator<String> itForDoc = allterms.iterator();
+        ArrayList<Double> vectorQuery = new ArrayList<Double>();
         while (itForDoc.hasNext()) {
             String term = itForDoc.next();
             vectorDoc.add(weight(term, doc));
-        }
-        ArrayList<Double> vectorQuery = new ArrayList<Double>();
-        Iterator<String> itForQuery = allterms.iterator();
-        while (itForQuery.hasNext()) {
-            String term = itForQuery.next();
             vectorQuery.add(weightForQuery(term, query));
         }
         return cosineSimilarity(vectorQuery, vectorDoc);
@@ -193,7 +189,6 @@ public class PositionalIndex {
      * @return
      */
     public double Relevance(String query, String doc) {
-    	System.out.println("Finding relavence for: " + doc);
     	//return TPScore(query,doc);
         return 0.6*TPScore(query, doc) + 0.4 *VSScore(query, doc);
     }
