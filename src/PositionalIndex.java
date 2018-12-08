@@ -1,16 +1,22 @@
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.HashMap;
 
 public class PositionalIndex {
 
     PreProcessor proc;
+
+    //HashMap<String, ArrayList<Double>> docVector = new HashMap<String, ArrayList<Double>>();
+    HashMap<String, ArrayList<Double>> queryVector = new HashMap<String, ArrayList<Double>>();
+
     /**
      * Gets the name of a folder containing document collection as parameter.
      * @param folder
      */
     public PositionalIndex(String folder) {
         proc = new PreProcessor(folder);
+        //this.makeDocVectors();
     }
 
     /**
@@ -131,6 +137,28 @@ public class PositionalIndex {
 
     }
 
+    // public void makeDocVectors()
+    // {
+    //     Iterator<String> docs = proc.getDocumentList().keySet().iterator();
+    //     while(docs.hasNext())
+    //     {
+    //         String doc = docs.next();
+    //         if (!proc.getDocumentList().containsKey(doc)) {
+    //             System.out.println("Document not found");
+    //             // what should error return be?
+    //             return;
+    //         }
+    //         Set<String> allterms = proc.getDictionary().keySet();
+    //         ArrayList<Double> vectorDoc = new ArrayList<Double>();
+    //         Iterator<String> itForDoc = allterms.iterator();
+    //         while (itForDoc.hasNext()) {
+    //             String term = itForDoc.next();
+    //             vectorDoc.add(weight(term, doc));
+    //         }
+    //         this.docVector.put(doc, vectorDoc);
+    //     }
+    // }
+
     /**
      * Returns V SScore(query,doc).
      * @param query
@@ -145,15 +173,25 @@ public class PositionalIndex {
             // what should error return be?
             return 0;
         }
-        Set<String> allterms = proc.getDictionary().keySet();
+        boolean q = false;
+        ArrayList<Double> vectorQuery = this.queryVector.get(query);
         ArrayList<Double> vectorDoc = new ArrayList<Double>();
+        Set<String> allterms = proc.getDictionary().keySet();
         Iterator<String> itForDoc = allterms.iterator();
-        ArrayList<Double> vectorQuery = new ArrayList<Double>();
+        if(vectorQuery == null)
+        {
+            vectorQuery = new ArrayList<Double>();
+            q = true;
+        }
         while (itForDoc.hasNext()) {
             String term = itForDoc.next();
+            if(q)
+                vectorQuery.add(weightForQuery(term, query));
             vectorDoc.add(weight(term, doc));
-            vectorQuery.add(weightForQuery(term, query));
         }
+        if(q)
+            this.queryVector.put(query, vectorQuery);
+
         return cosineSimilarity(vectorQuery, vectorDoc);
     }
 

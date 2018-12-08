@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 
 public class QueryProcessor {
 
-    private PositionalIndex pi;
+    public PositionalIndex pi;
     private PreProcessor pp;
     private int size;
 
